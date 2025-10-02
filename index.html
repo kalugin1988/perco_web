@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поиск сотрудников</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .update-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .update-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .update-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f2f5;
+        }
+
+        .results-title {
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .results-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+
+        .results-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+            font-size: 1.1rem;
+        }
+
+        .card-id {
+            font-family: 'Courier New', monospace;
+            background: #f0f2f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .results-table {
+                font-size: 14px;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Поиск сотрудников</h1>
+            <p>Найдите сотрудников по ФИО или номеру карты</p>
+        </div>
+
+        <div class="search-section">
+            <form method="GET" class="search-form">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="search-input" 
+                    placeholder="Введите фамилию, имя, отчество или номер карты..." 
+                    value="{{.SearchTerm}}"
+                >
+                <button type="submit" class="search-btn">Найти</button>
+            </form>
+            
+            <div class="update-section">
+                <button class="update-btn" onclick="updateData()">
+                    🔄 Обновить данные из Firebird
+                </button>
+            </div>
+        </div>
+
+        {{if .Results}}
+        <div class="results-section">
+            <div class="results-header">
+                <h2 class="results-title">Результаты поиска</h2>
+                <div class="results-count">Найдено: {{len .Results}}</div>
+            </div>
+            
+            <div class="table-container">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>ID сотрудника</th>
+                            <th>Номер карты</th>
+                            <th>Фамилия</th>
+                            <th>Имя</th>
+                            <th>Отчество</th>
+                            <th>Статус</th>
+                            <th>Инфо</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Results}}
+                        <tr>
+                            <td>{{.IDStaff}}</td>
+                            <td><span class="card-id">{{.Identifier}}</span></td>
+                            <td>{{if .LastName}}{{.LastName}}{{else}}-{{end}}</td>
+                            <td>{{if .FirstName}}{{.FirstName}}{{else}}-{{end}}</td>
+                            <td>{{if .MiddleName}}{{.MiddleName}}{{else}}-{{end}}</td>
+                            <td>{{if .Status}}{{.Status}}{{else}}-{{end}}</td>
+                            <td>{{if .Info}}{{.Info}}{{else}}-{{end}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{else if .SearchTerm}}
+        <div class="results-section">
+            <div class="no-results">
+                <p>😕 По запросу "{{.SearchTerm}}" ничего не найдено</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #a0aec0;">
+                    Попробуйте изменить поисковый запрос
+                </p>
+            </div>
+        </div>
+        {{end}}
+    </div>
+
+    <script>
+        async function updateData() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            btn.textContent = '🔄 Обновление...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/update', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ Ошибка при обновлении данных');
+                }
+            } catch (error) {
+                alert('❌ Ошибка сети: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Фокус на поле поиска при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        });
+    </script>
+</body>
+</html>
